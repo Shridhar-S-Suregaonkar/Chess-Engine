@@ -85,4 +85,23 @@ public:
         cout << "\n";
 
     }
+
+    vector<pair<int, int>> whitePawnMoves() const {
+        vector<pair<int, int>> moves;
+        uint64_t empty = ~allPieces();
+        uint64_t singlePush = (whitePawns << 8) & empty;
+        uint64_t doublePush = ((singlePush & 0x000000000000FF00ULL) << 8) & empty;
+
+        for (int sq = 0; sq < 64; sq++) {
+            uint64_t pos = 1ULL << sq;
+            if (singlePush & pos) {
+                moves.emplace_back(sq - 8, sq);
+            }
+            if (doublePush & pos) {
+                moves.emplace_back(sq - 16, sq);
+            }
+        }
+
+        
+    }
 };
