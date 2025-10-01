@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 
+#include "header.h"
+
 using namespace std;
 
 class board{
@@ -44,6 +46,15 @@ public:
 
     }
 
+    board(uint64_t wp, uint64_t wr, uint64_t wn, uint64_t wb, uint64_t wq, uint64_t wk) :
+          whitePawns(wp), whiteRook(wr), whiteKnight(wn), whiteBishop(wb), whiteQueen(wq), whiteKing(wk),
+          blackPawns(flipPiece(wp)), blackRook(flipPiece(wr)), blackKnight(flipPiece(wn)), blackBishop(flipPiece(wb)), blackQueen(flipPiece(wq)), blackKing(flipPiece(wk)) {}
+
+    board(uint64_t wp, uint64_t wr, uint64_t wn, uint64_t wb, uint64_t wq, uint64_t wk,
+          uint64_t bp, uint64_t br, uint64_t bn, uint64_t bb, uint64_t bq, uint64_t bk) :
+          whitePawns(wp), whiteRook(wr), whiteKnight(wn), whiteBishop(wb), whiteQueen(wq), whiteKing(wk),
+          blackPawns(bp), blackRook(br), blackKnight(bn), blackBishop(bb), blackQueen(bq), blackKing(bk) {}
+
     uint64_t whitePieces() const {
         return whitePawns | whiteKnight | whiteBishop | whiteRook | whiteQueen | whiteKing;
     }
@@ -84,6 +95,13 @@ public:
         }
         cout << "\n";
 
+    }
+
+    uint64_t flipPiece(uint64_t b) const {
+        b = ((b >> 8) & 0x00FF00FF00FF00FFULL) | ((b & 0x00FF00FF00FF00FFULL) << 8);
+        b = ((b >> 16) & 0x0000FFFF0000FFFFULL) | ((b & 0x0000FFFF0000FFFFULL) << 16);
+        b = (b >> 32) | (b << 32);
+        return b;
     }
 
     vector<pair<int, int>> whitePawnMoves() const {
