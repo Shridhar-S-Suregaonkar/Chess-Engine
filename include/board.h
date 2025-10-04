@@ -114,14 +114,14 @@ public:
             uint8_t file = sq % 8;
 
             uint8_t rto = rank + 1;
-            uint8_t to = rto << 3 + file;
+            uint8_t to = (rto << 3) + file;
             if (rto < 8 && !(occupied & (1ULL << to)))
             {
                 moves.emplace_back(sq, to);
                 if (rank == 1)
                 {
                     uint8_t rto2 = rank + 2;
-                    uint8_t to2 = rto2 << 3 + file;
+                    uint8_t to2 = (rto2 << 3) + file;
                     if (rto2 < 8 && !(occupied & (1ULL << to2)))
                     {
                         moves.emplace_back(sq, to2);
@@ -129,7 +129,6 @@ public:
                 }
             }
         }
-
         return moves;
     }
 
