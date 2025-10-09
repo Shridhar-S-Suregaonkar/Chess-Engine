@@ -1,0 +1,10 @@
+.vscode/
+.testing/
+*.exe
+*.o
+*.obj
+*.log
+*.bin
+*.out
+*.class
+
