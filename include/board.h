@@ -110,25 +110,14 @@ namespace board {
         vector<pair<uint8_t, uint8_t>> whitePawnQuietMoves() const {
             vector<pair<uint8_t, uint8_t>> moves;
             uint64_t occupied = allPieces();
-            for (uint8_t sq = 0; sq <64; sq++){
-                if (!(whitePawns & (1ULL<<sq))) continue;
-                uint8_t rank = sq / 8;
-                uint8_t file = sq % 8;
-
-                uint8_t rto = rank + 1;
-                uint8_t to = (rto << 3) + file;
-                if (rto < 8 && !(occupied & (1ULL << to)))
-                {
-                    moves.emplace_back(sq, to);
-                    if (rank == 1)
-                    {
-                        uint8_t rto2 = rank + 2;
-                        uint8_t to2 = (rto2 << 3) + file;
-                        if (rto2 < 8 && !(occupied & (1ULL << to2)))
-                        {
-                            moves.emplace_back(sq, to2);
-                        }
-                    }
+            uint64_t single_push = (whitePawns << 8) & ~occupied;
+            uint64_t double_push = ((single_push & RANK_3) << 8) & ~occupied;
+            for (uint8_t i = 0; i < 64; i++) {
+                if (single_push & (1ULL << i)) {
+                    moves.emplace_back(i - 8, i);
+                }
+                if (double_push & (1ULL << i)) {
+                    moves.emplace_back(i - 16, i);
                 }
             }
             return moves;
@@ -136,31 +125,16 @@ namespace board {
 
         vector<pair<uint8_t, uint8_t>> whitePawnCaptures() const {
             vector<pair<uint8_t, uint8_t>> moves;
-            for (uint8_t sq = 0; sq < 64; sq++) {
-                if (!(whitePawns & (1ULL << sq))) continue;
-                uint8_t rank = sq / 8;
-                uint8_t file = sq % 8;
+            uint64_t black_occupied = blackPieces();
+            uint64_t leftCaptures = ((whitePawns & ~FILE_A) << 7) & black_occupied;
+            uint64_t rightCaptures = ((whitePawns & ~FILE_H) << 9) & black_occupied;
 
-                {
-                    uint8_t rto = rank + 1;
-                    int8_t fto = static_cast<int8_t>(file) - 1;
-                    if (rto < 8 && fto >= 0) {
-                        uint8_t to = (rto << 3) + fto;
-                        if (blackPieces() & (1ULL << to)) {
-                            moves.emplace_back(sq, to);
-                        }
-                    }
+            for (uint8_t i = 0; i < 64; i++) {
+                if (leftCaptures & (1ULL << i)) {
+                    moves.emplace_back(i - 7, i);
                 }
-
-                {
-                    uint8_t rto = rank + 1;
-                    int8_t fto = static_cast<int8_t>(file) + 1;
-                    if (rto < 8 && fto < 8) {
-                        uint8_t to = (rto << 3) + fto;
-                        if (blackPieces() & (1ULL << to)) {
-                            moves.emplace_back(sq, to);
-                        }
-                    }
+                if (rightCaptures & (1ULL << i)) {
+                    moves.emplace_back(i - 9, i);
                 }
             }
             return moves;
@@ -169,58 +143,30 @@ namespace board {
         vector<pair<uint8_t, uint8_t>> blackPawnQuietMoves() const {
             vector<pair<uint8_t, uint8_t>> moves;
             uint64_t occupied = allPieces();
-            for (uint8_t sq = 0; sq < 64; sq++) {
-                if (!(blackPawns & (1ULL << sq))) continue;
-                uint8_t rank = sq / 8;
-                uint8_t file = sq % 8;
-
-                uint8_t rto = rank - 1;
-                uint8_t to = rto << 3 + file;
-                if (rto >= 0 && !(occupied & (1ULL << to)))
-                {
-                    moves.emplace_back(sq, to);
-                    if (rank == 6)
-                    {
-                        uint8_t rto2 = rank - 2;
-                        uint8_t to2 = rto2 << 3 + file;
-                        if (rto2 >= 0 && !(occupied & (1ULL << to2)))
-                        {
-                            moves.emplace_back(sq, to2);
-                        }
-                    }
+            uint64_t single_push = (blackPawns >> 8) & ~occupied;
+            uint64_t double_push = ((single_push & RANK_6) >> 8) & ~occupied;
+            for (uint8_t i = 0; i < 64; i++) {
+                if (single_push & (1ULL << i)) {
+                    moves.emplace_back(i + 8, i);
+                }
+                if (double_push & (1ULL << i)) {
+                    moves.emplace_back(i + 16, i);
                 }
             }
-
             return moves;
         }
 
         vector<pair<uint8_t, uint8_t>> blackPawnCaptures() const {
             vector<pair<uint8_t, uint8_t>> moves;
-            for (uint8_t sq = 0; sq < 64; sq++) {
-                if (!(blackPawns & (1ULL << sq))) continue;
-                uint8_t rank = sq / 8;
-                uint8_t file = sq % 8;
-
-                {
-                    uint8_t rto = rank - 1;
-                    int8_t fto = static_cast<int8_t>(file) - 1;
-                    if ( rto >= 0 && fto >= 0) {
-                        uint8_t to = (rto << 3) + fto;
-                        if (whitePieces() & (1ULL << to)) {
-                            moves.emplace_back(sq, to);
-                        }
-                    }
+            uint64_t white_occupied = whitePieces();
+            uint64_t leftCaptures = ((blackPawns & ~FILE_H) >> 7) & white_occupied;
+            uint64_t rightCaptures = ((blackPawns & ~FILE_A) >> 9) & white_occupied;
+            for (uint8_t i = 0; i < 64; i++) {
+                if (leftCaptures & (1ULL << i)) {
+                    moves.emplace_back(i + 7, i);
                 }
-
-                {
-                    uint8_t rto = rank - 1;
-                    int8_t fto = static_cast<int8_t>(file) + 1;
-                    if (rto >= 0 && fto < 8) {
-                        uint8_t to = (rto << 3) + fto;
-                        if (whitePieces() & (1ULL << to)) {
-                            moves.emplace_back(sq, to);
-                        }
-                    }
+                if (rightCaptures & (1ULL << i)) {
+                    moves.emplace_back(i + 9, i);
                 }
             }
             return moves;
