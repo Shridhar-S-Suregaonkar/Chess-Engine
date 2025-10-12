@@ -2,6 +2,9 @@
 #define HEADER_H
 
 #include <cstdint>
+#include <utility>
+
+using namespace std;
 
 // Bitboard ranks
 constexpr uint64_t RANK_1 = 0x00000000000000FFULL;

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <functional>
 
 #include "header.h"
 
@@ -174,6 +175,7 @@ namespace board {
 
         vector<pair<uint8_t, uint8_t>> whiteKnightMoves() const {
             vector<pair<uint8_t, uint8_t>> moves;
+            uint64_t occupied = allPieces();
             int8_t r_deltas[8] = {2, 2, 1, 1, -2, -2, -1, -1};
             int8_t f_deltas[8] = {1, -1, 2, -2, 1, -1, 2, -2};
             for (uint8_t sq = 0; sq < 64; sq++) {
