@@ -4,8 +4,7 @@
 #include <functional>
 
 #include "header.h"
-
-using namespace std;
+#include "pieces.h"
 
 namespace board {
 
@@ -28,7 +27,7 @@ namespace board {
 
 
     public:
-        Board(string type){
+        Board(std::string type){
             if(type == "Standard"){
                 whitePawns  = 0x000000000000FF00ULL;
                 whiteRook   = 0x0000000000000081ULL;
@@ -108,8 +107,8 @@ namespace board {
             return b;
         }
 
-        vector<pair<uint8_t, uint8_t>> whitePawnQuietMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> whitePawnQuietMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t single_push = (whitePawns << 8) & ~occupied;
             uint64_t double_push = ((single_push & RANK_3) << 8) & ~occupied;
@@ -124,8 +123,8 @@ namespace board {
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> whitePawnCaptures() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> whitePawnCaptures() const {
+            vector<Move> moves;
             uint64_t black_occupied = blackPieces();
             uint64_t leftCaptures = ((whitePawns & ~FILE_A) << 7) & black_occupied;
             uint64_t rightCaptures = ((whitePawns & ~FILE_H) << 9) & black_occupied;
@@ -141,8 +140,8 @@ namespace board {
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> blackPawnQuietMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> blackPawnQuietMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t single_push = (blackPawns >> 8) & ~occupied;
             uint64_t double_push = ((single_push & RANK_6) >> 8) & ~occupied;
@@ -157,8 +156,8 @@ namespace board {
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> blackPawnCaptures() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> blackPawnCaptures() const {
+            vector<Move> moves;
             uint64_t white_occupied = whitePieces();
             uint64_t leftCaptures = ((blackPawns & ~FILE_H) >> 7) & white_occupied;
             uint64_t rightCaptures = ((blackPawns & ~FILE_A) >> 9) & white_occupied;
@@ -173,8 +172,8 @@ namespace board {
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> whiteKnightMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> whiteKnightMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             int8_t r_deltas[8] = {2, 2, 1, 1, -2, -2, -1, -1};
             int8_t f_deltas[8] = {1, -1, 2, -2, 1, -1, 2, -2};
@@ -190,7 +189,7 @@ namespace board {
                         uint8_t fto = static_cast<uint8_t>(fto_i);
                         uint8_t to = rto * 8 + fto;
                         if (!(whitePieces() & (1ULL << to))) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                     }
                 }
@@ -198,8 +197,8 @@ namespace board {
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> blackKnightMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> blackKnightMoves() const {
+            vector<Move> moves;
             int8_t r_deltas[8] = {2, 2, 1, 1, -2, -2, -1, -1};
             int8_t f_deltas[8] = {1, -1, 2, -2, 1, -1, 2, -2};
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -214,7 +213,7 @@ namespace board {
                         uint8_t fto = static_cast<uint8_t>(fto_i);
                         uint8_t to = rto * 8 + fto;
                         if (!(blackPieces() & (1ULL << to))) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                     }
                 }
@@ -222,8 +221,8 @@ namespace board {
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> whiteBishopMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> whiteBishopMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = blackPieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -241,11 +240,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Up-right
@@ -259,11 +258,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-left
@@ -277,11 +276,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-right
@@ -295,19 +294,19 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
             }
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> blackBishopMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> blackBishopMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = whitePieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -325,11 +324,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Up-right
@@ -343,11 +342,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-left
@@ -361,11 +360,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-right
@@ -379,19 +378,19 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
             }
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> whiteRookMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> whiteRookMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = blackPieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -409,11 +408,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down
@@ -427,11 +426,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Right
@@ -445,11 +444,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Left
@@ -463,19 +462,19 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
             }
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> blackRookMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> blackRookMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = whitePieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -493,11 +492,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down
@@ -511,11 +510,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Right
@@ -529,11 +528,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Left
@@ -547,19 +546,19 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
             }
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> whiteQueenMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> whiteQueenMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = blackPieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -578,11 +577,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down
@@ -596,11 +595,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Right
@@ -614,11 +613,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Left
@@ -632,11 +631,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Bishop directions
@@ -651,11 +650,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Up-right
@@ -669,11 +668,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-left
@@ -687,11 +686,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-right
@@ -705,19 +704,19 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
             }
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> blackQueenMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> blackQueenMoves() const {
+            vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = whitePieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -736,11 +735,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down
@@ -754,11 +753,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Right
@@ -772,11 +771,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Left
@@ -790,11 +789,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Bishop directions
@@ -809,11 +808,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Up-right
@@ -827,11 +826,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-left
@@ -845,11 +844,11 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
                 // Down-right
@@ -863,19 +862,19 @@ namespace board {
                     uint64_t tpos = 1ULL << to;
                     if (occupied & tpos) {
                         if (opponent & tpos) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                         break;
                     } else {
-                        moves.push_back(make_pair(sq, to));
+                        moves.emplace_back(sq, to);
                     }
                 }
             }
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> whiteKingMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> whiteKingMoves() const {
+            vector<Move> moves;
             int8_t r_deltas[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
             int8_t f_deltas[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -890,7 +889,7 @@ namespace board {
                         uint8_t fto = static_cast<uint8_t>(fto_i);
                         uint8_t to = rto * 8 + fto;
                         if (!(whitePieces() & (1ULL << to))) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                     }
                 }
@@ -898,8 +897,8 @@ namespace board {
             return moves;
         }
 
-        vector<pair<uint8_t, uint8_t>> blackKingMoves() const {
-            vector<pair<uint8_t, uint8_t>> moves;
+        vector<Move> blackKingMoves() const {
+            vector<Move> moves;
             int8_t r_deltas[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
             int8_t f_deltas[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -914,7 +913,7 @@ namespace board {
                         uint8_t fto = static_cast<uint8_t>(fto_i);
                         uint8_t to = rto * 8 + fto;
                         if (!(blackPieces() & (1ULL << to))) {
-                            moves.push_back(make_pair(sq, to));
+                            moves.emplace_back(sq, to);
                         }
                     }
                 }
