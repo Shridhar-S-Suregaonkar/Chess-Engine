@@ -6,7 +6,7 @@
 
 
 #include "header.h"
-#include "pieces.h"
+#include "moves.h"
 
 namespace board {
 
@@ -53,6 +53,8 @@ namespace board {
         std::vector<Move> blackQueenMoves() const;
         std::vector<Move> whiteKingMoves() const;
         std::vector<Move> blackKingMoves() const;
+
+        friend class chess;
     };
 
 }
