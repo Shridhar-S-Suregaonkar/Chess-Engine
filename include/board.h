@@ -1,7 +1,9 @@
+#ifndef BOARD_H
+#define BOARD_H
+
 #include <iostream>
 #include <vector>
 #include <utility>
-#include <functional>
 
 #include "header.h"
 #include "pieces.h"
@@ -107,8 +109,8 @@ namespace board {
             return b;
         }
 
-        vector<Move> whitePawnQuietMoves() const {
-            vector<Move> moves;
+        std::vector<Move> whitePawnQuietMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t single_push = (whitePawns << 8) & ~occupied;
             uint64_t double_push = ((single_push & RANK_3) << 8) & ~occupied;
@@ -123,8 +125,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> whitePawnCaptures() const {
-            vector<Move> moves;
+        std::vector<Move> whitePawnCaptures() const {
+            std::vector<Move> moves;
             uint64_t black_occupied = blackPieces();
             uint64_t leftCaptures = ((whitePawns & ~FILE_A) << 7) & black_occupied;
             uint64_t rightCaptures = ((whitePawns & ~FILE_H) << 9) & black_occupied;
@@ -140,8 +142,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> blackPawnQuietMoves() const {
-            vector<Move> moves;
+        std::vector<Move> blackPawnQuietMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t single_push = (blackPawns >> 8) & ~occupied;
             uint64_t double_push = ((single_push & RANK_6) >> 8) & ~occupied;
@@ -156,8 +158,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> blackPawnCaptures() const {
-            vector<Move> moves;
+        std::vector<Move> blackPawnCaptures() const {
+            std::vector<Move> moves;
             uint64_t white_occupied = whitePieces();
             uint64_t leftCaptures = ((blackPawns & ~FILE_H) >> 7) & white_occupied;
             uint64_t rightCaptures = ((blackPawns & ~FILE_A) >> 9) & white_occupied;
@@ -172,8 +174,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> whiteKnightMoves() const {
-            vector<Move> moves;
+        std::vector<Move> whiteKnightMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             int8_t r_deltas[8] = {2, 2, 1, 1, -2, -2, -1, -1};
             int8_t f_deltas[8] = {1, -1, 2, -2, 1, -1, 2, -2};
@@ -197,8 +199,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> blackKnightMoves() const {
-            vector<Move> moves;
+        std::vector<Move> blackKnightMoves() const {
+            std::vector<Move> moves;
             int8_t r_deltas[8] = {2, 2, 1, 1, -2, -2, -1, -1};
             int8_t f_deltas[8] = {1, -1, 2, -2, 1, -1, 2, -2};
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -221,8 +223,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> whiteBishopMoves() const {
-            vector<Move> moves;
+        std::vector<Move> whiteBishopMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = blackPieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -305,8 +307,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> blackBishopMoves() const {
-            vector<Move> moves;
+        std::vector<Move> blackBishopMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = whitePieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -389,8 +391,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> whiteRookMoves() const {
-            vector<Move> moves;
+        std::vector<Move> whiteRookMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = blackPieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -473,8 +475,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> blackRookMoves() const {
-            vector<Move> moves;
+        std::vector<Move> blackRookMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = whitePieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -557,8 +559,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> whiteQueenMoves() const {
-            vector<Move> moves;
+        std::vector<Move> whiteQueenMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = blackPieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -715,8 +717,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> blackQueenMoves() const {
-            vector<Move> moves;
+        std::vector<Move> blackQueenMoves() const {
+            std::vector<Move> moves;
             uint64_t occupied = allPieces();
             uint64_t opponent = whitePieces();
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -873,8 +875,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> whiteKingMoves() const {
-            vector<Move> moves;
+        std::vector<Move> whiteKingMoves() const {
+            std::vector<Move> moves;
             int8_t r_deltas[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
             int8_t f_deltas[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -897,8 +899,8 @@ namespace board {
             return moves;
         }
 
-        vector<Move> blackKingMoves() const {
-            vector<Move> moves;
+        std::vector<Move> blackKingMoves() const {
+            std::vector<Move> moves;
             int8_t r_deltas[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
             int8_t f_deltas[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
             for (uint8_t sq = 0; sq < 64; sq++) {
@@ -924,3 +926,5 @@ namespace board {
     };
 
 }
+
+#endif //CHESS_BOARD_H
