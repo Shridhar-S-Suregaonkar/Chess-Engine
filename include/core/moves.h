@@ -22,12 +22,13 @@ namespace board {
         public:
             uint8_t from;
             uint8_t to;
+            int16_t score = 0;
             bool isCapture = false;
             bool isCheck = false;
 
-            Move(uint8_t f, uint8_t t) : from(f), to(t) {}
-            Move(uint8_t f, uint8_t t, bool cap, bool check) : from(f), to(t), isCapture(cap), isCheck(check) {}
-            Move(const Move &m) : from(m.from), to(m.to), isCapture(m.isCapture), isCheck(m.isCheck) {}
+            Move(uint8_t f, uint8_t t);
+            Move(uint8_t f, uint8_t t, bool cap, bool check);
+            Move(const Move &m);
     };
 }
 
