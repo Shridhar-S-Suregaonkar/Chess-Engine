@@ -8,6 +8,10 @@
 
 namespace board {
 
+    Move::Move(uint8_t f, uint8_t t) : from(f), to(t) {}
+    Move::Move(uint8_t f, uint8_t t, bool cap, bool check) : from(f), to(t), isCapture(cap), isCheck(check) {}
+    Move::Move(const Move &m) : from(m.from), to(m.to), isCapture(m.isCapture), isCheck(m.isCheck), score(m.score) {}
+
     std::vector<Move> Board::whitePawnQuietMoves() const {
         std::vector<Move> moves;
         uint64_t occupied = allPieces();
