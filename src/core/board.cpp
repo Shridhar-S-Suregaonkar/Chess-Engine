@@ -80,6 +80,18 @@ namespace board {
         b = (b >> 32) | (b << 32);
         return b;
     }
+
+    bool Board::checkBitBoard() const
+    {
+        for(int i = 0; i < 6; i++){
+            for(int j = i + 1; j < 6; j++){
+                if((*whitePiece_iter[i] & *whitePiece_iter[j]) != 0) return false;
+                if((*blackPiece_iter[i] & *blackPiece_iter[j]) != 0) return false;
+            }
+        }
+        if((whitePieces() & blackPieces()) != 0) return false;
+        return true;
+    }
 }
 
 
