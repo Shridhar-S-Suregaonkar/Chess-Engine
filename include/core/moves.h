@@ -25,9 +25,10 @@ namespace board {
             int16_t score = 0;
             bool isCapture = false;
             bool isCheck = false;
+            Color color;
 
-            Move(uint8_t f, uint8_t t);
-            Move(uint8_t f, uint8_t t, bool cap, bool check);
+            Move(uint8_t f, uint8_t t, Color c);
+            Move(uint8_t f, uint8_t t, bool cap, bool check, Color c);
             Move(const Move &m);
     };
 }
