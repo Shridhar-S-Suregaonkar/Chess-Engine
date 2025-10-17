@@ -30,6 +30,10 @@ namespace board {
         uint64_t blackKing;
 
     public:
+
+        uint64_t* const whitePiece_iter[6] = {&whitePawns, &whiteKnight, &whiteBishop, &whiteRook, &whiteQueen, &whiteKing};
+        uint64_t* const blackPiece_iter[6] = {&blackPawns, &blackKnight, &blackBishop, &blackRook, &blackQueen, &blackKing};
+
         Board(const std::string& type = "Standard");
         Board(uint64_t wp, uint64_t wr, uint64_t wn, uint64_t wb, uint64_t wq, uint64_t wk);
 
@@ -38,6 +42,7 @@ namespace board {
         uint64_t allPieces() const;
         void printBoard() const;
         uint64_t flipPiece(uint64_t b) const;
+        bool checkBitBoard() const;
 
         std::vector<Move> whitePawnQuietMoves() const;
         std::vector<Move> whitePawnCaptures() const;
