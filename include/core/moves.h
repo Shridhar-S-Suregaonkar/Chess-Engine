@@ -1,5 +1,5 @@
-#ifndef PIECES_H
-#define PIECES_H
+#ifndef MOVES_H
+#define MOVES_H
 #include <cstdint>
 #include <array>
 
