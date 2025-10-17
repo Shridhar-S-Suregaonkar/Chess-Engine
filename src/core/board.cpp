@@ -83,7 +83,7 @@ namespace board {
 
     bool Board::checkBitBoard() const
     {
-        for(int i = 0; i < 6; i++){
+        for(int i = 0; i < 5; i++){
             for(int j = i + 1; j < 6; j++){
                 if((*whitePiece_iter[i] & *whitePiece_iter[j]) != 0) return false;
                 if((*blackPiece_iter[i] & *blackPiece_iter[j]) != 0) return false;
