@@ -29,6 +29,10 @@ namespace board {
         uint64_t blackQueen;
         uint64_t blackKing;
 
+        bool canCastle = true;
+        bool _oo = true;
+        bool _ooo = true;
+
     public:
 
         uint64_t* const whitePiece_iter[6] = {&whitePawns, &whiteKnight, &whiteBishop, &whiteRook, &whiteQueen, &whiteKing};
@@ -63,5 +67,16 @@ namespace board {
     };
 
 }
+
+namespace chess {
+    using namespace board;
+    class chess{
+
+        private:
+            Board chessBoard;
+            Color toMove;
+
+    };
+}   
 
 #endif //CHESS_BOARD_H
