@@ -64,17 +64,27 @@ namespace board {
         std::vector<Move> blackKingMoves() const;
 
         friend class chess;
+        friend std::vector<Move> movesEvaluator(const Board& board, Color toMove);
     };
 
 }
 
 namespace chess {
     using namespace board;
-    class chess{
+    class Chess{
 
         private:
             Board chessBoard;
             Color toMove;
+
+        public:
+            Chess(const std::string& type = "Standard", Color tm = White): chessBoard(type), toMove(tm) {}
+            void movePiece(const Move& m);
+            void printBoard() const;
+            bool isCheckmate() const;
+            bool isStalemate() const;
+            void play();
+
 
     };
 }   
