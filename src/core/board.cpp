@@ -6,7 +6,7 @@
 
 namespace board {
 
-    Board::Board(const std::string& type){
+    Board::Board(const std::string& type = "Standard") {
         if(type == "Standard"){
             whitePawns  = 0x000000000000FF00ULL;
             whiteRook   = 0x0000000000000081ULL;
@@ -44,33 +44,56 @@ namespace board {
         return whitePieces() | blackPieces();
     }
 
-    void Board::printBoard() const {
+    void Board::printBoard(Color player) const {
         uint64_t pos;
         int p;
         char piece;
-        for (int rank = 7; rank >= 0; rank--){
-            for (int file = 0; file < 8; file++) {
-                p = (rank << 3) + file;
-                pos = 1ULL << p;
-                piece = '.';
-                if (whitePawns & pos) piece ='P';
-                else if (whiteRook & pos) piece ='R';
-                else if (whiteKnight & pos) piece ='N';
-                else if (whiteBishop & pos) piece ='B';
-                else if (whiteQueen & pos) piece ='Q';
-                else if (whiteKing & pos) piece ='K';
-                else if (blackPawns & pos) piece ='p';
-                else if (blackRook & pos) piece ='r';
-                else if (blackKnight & pos) piece ='n';
-                else if (blackBishop & pos) piece ='b';
-                else if (blackQueen & pos) piece ='q';
-                else if (blackKing & pos) piece ='k';
-                std::cout<<piece<<" ";
+        auto getPiece = [&](uint64_t pos) ->char {
+                if      (whitePawns & pos)  return 'P';
+                else if (whiteRook & pos)   return 'R';
+                else if (whiteKnight & pos) return 'N';
+                else if (whiteBishop & pos) return 'B';
+                else if (whiteQueen & pos)  return 'Q';
+                else if (whiteKing & pos)   return 'K';
+                else if (blackPawns & pos)  return 'p';
+                else if (blackRook & pos)   return 'r';
+                else if (blackKnight & pos) return 'n';
+                else if (blackBishop & pos) return 'b';
+                else if (blackQueen & pos)  return 'q';
+                else if (blackKing & pos)   return 'k';
+                else                        return '.';
+        };
 
+        if (Color::White == player)
+        {
+            for (int rank = 7; rank >= 0; rank--){
+                for (int file = 0; file < 8; file++) {
+                    p = (rank << 3) + file;
+                    pos = 1ULL << p;
+                    piece = getPiece(pos);
+                    
+                    std::cout<<piece<<" ";
+
+                }
+                std::cout << "\n";
             }
             std::cout << "\n";
         }
-        std::cout << "\n";
+        else if (Color::Black == player)
+        {
+            for (int rank = 0; rank < 8; rank++){
+                for (int file = 0; file < 8; file++) {
+                    p = (rank << 3) + file;
+                    pos = 1ULL << p;
+                    piece = getPiece(pos);
+                    
+                    std::cout<<piece<<" ";
+
+                }
+                std::cout << "\n";
+            }
+            std::cout << "\n";
+        }
 
     }
 
@@ -98,11 +121,13 @@ namespace board {
 namespace chess {
     using namespace board;
 
-    class chess{
+    Chess::Chess(const std::string& type = "Standard", Color player_color = White, Color tm = White): chessBoard(type), playerColor(player_color), toMove(tm)
+    {
+        this->play();
+    }
 
-        private:
-            Board chessBoard;
-            Color toMove;
-
-    };
+    void Chess::play(){
+        //
+    }
+    
 }
