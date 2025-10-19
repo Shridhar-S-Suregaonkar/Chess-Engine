@@ -14,6 +14,10 @@ namespace board {
         White = 0, Black = 1
     };
 
+    enum MoveState: uint8_t {
+        QuietMove = 0, Capture = 1, Castling = 2, EnPassant = 3, Promotion = 4, PromotionCapture = 5, Check = 6, CheckMate = 7, Illegal = 8
+    };
+
     const std::array<std::pair<uint8_t, uint8_t>, 8> knightMoves = {std::make_pair(2, 1), std::make_pair(1, 2), std::make_pair(-1, 2), std::make_pair(-2, 1), std::make_pair(-2, -1), std::make_pair(-1, -2), std::make_pair(1, -2), std::make_pair(2, -1)};
 
     const std::array<std::pair<uint8_t, uint8_t>, 8> kingMoves = {std::make_pair(1, 0), std::make_pair(1, 1), std::make_pair(0, 1), std::make_pair(-1, 1), std::make_pair(-1, 0), std::make_pair(-1, -1), std::make_pair(0, -1), std::make_pair(1, -1)};
@@ -23,14 +27,16 @@ namespace board {
             uint8_t from;
             uint8_t to;
             int16_t score = 0;
-            bool isCapture = false;
-            bool isCheck = false;
+            MoveState state;
             Color color;
+            PieceType piece;
 
             Move(uint8_t f, uint8_t t, Color c);
-            Move(uint8_t f, uint8_t t, bool cap, bool check, Color c);
+            Move(uint8_t f, uint8_t t, MoveState s, Color c);
             Move(const Move &m);
     };
+
+    std::vector<Move> movesEvaluator(const Board& board, Color toMove);
 }
 
 #endif // PIECES_H
