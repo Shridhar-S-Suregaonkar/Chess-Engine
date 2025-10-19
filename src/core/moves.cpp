@@ -80,15 +80,13 @@ namespace board {
     std::vector<Move> Board::whiteKnightMoves() const {
         std::vector<Move> moves;
         uint64_t occupied = allPieces();
-        int8_t r_deltas[8] = {2, 2, 1, 1, -2, -2, -1, -1};
-        int8_t f_deltas[8] = {1, -1, 2, -2, 1, -1, 2, -2};
         for (uint8_t sq = 0; sq < 64; sq++) {
             if (!(whiteKnight & (1ULL << sq))) continue;
             uint8_t rank = sq / 8;
             uint8_t file = sq % 8;
             for (uint8_t d = 0; d < 8; d++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + r_deltas[d];
-                int8_t fto_i = static_cast<int8_t>(file) + f_deltas[d];
+                int8_t fto_i = static_cast<int8_t>(file) + knightMoves[d].first;
+                int8_t rto_i = static_cast<int8_t>(rank) + knightMoves[d].second;
                 if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
                     uint8_t rto = static_cast<uint8_t>(rto_i);
                     uint8_t fto = static_cast<uint8_t>(fto_i);
@@ -104,15 +102,13 @@ namespace board {
 
     std::vector<Move> Board::blackKnightMoves() const {
         std::vector<Move> moves;
-        int8_t r_deltas[8] = {2, 2, 1, 1, -2, -2, -1, -1};
-        int8_t f_deltas[8] = {1, -1, 2, -2, 1, -1, 2, -2};
         for (uint8_t sq = 0; sq < 64; sq++) {
             if (!(blackKnight & (1ULL << sq))) continue;
             uint8_t rank = sq / 8;
             uint8_t file = sq % 8;
-            for (uint8_t d = 0; d < 8; d++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + r_deltas[d];
-                int8_t fto_i = static_cast<int8_t>(file) + f_deltas[d];
+            for (uint8_t d = 7; d >= 0; d--) {
+                int8_t fto_i = static_cast<int8_t>(file) + knightMoves[d].first;
+                int8_t rto_i = static_cast<int8_t>(rank) + knightMoves[d].second;
                 if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
                     uint8_t rto = static_cast<uint8_t>(rto_i);
                     uint8_t fto = static_cast<uint8_t>(fto_i);
@@ -780,15 +776,13 @@ namespace board {
 
     std::vector<Move> Board::whiteKingMoves() const {
         std::vector<Move> moves;
-        int8_t r_deltas[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-        int8_t f_deltas[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
         for (uint8_t sq = 0; sq < 64; sq++) {
             if (!(whiteKing & (1ULL << sq))) continue;
             uint8_t rank = sq / 8;
             uint8_t file = sq % 8;
             for (uint8_t d = 0; d < 8; d++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + r_deltas[d];
-                int8_t fto_i = static_cast<int8_t>(file) + f_deltas[d];
+                int8_t rto_i = static_cast<int8_t>(rank) + kingMoves[d].first;
+                int8_t fto_i = static_cast<int8_t>(file) + kingMoves[d].second;
                 if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
                     uint8_t rto = static_cast<uint8_t>(rto_i);
                     uint8_t fto = static_cast<uint8_t>(fto_i);
@@ -811,8 +805,8 @@ namespace board {
             uint8_t rank = sq / 8;
             uint8_t file = sq % 8;
             for (uint8_t d = 0; d < 8; d++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + r_deltas[d];
-                int8_t fto_i = static_cast<int8_t>(file) + f_deltas[d];
+                int8_t rto_i = static_cast<int8_t>(rank) + kingMoves[d].first;
+                int8_t fto_i = static_cast<int8_t>(file) + kingMoves[d].second;
                 if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
                     uint8_t rto = static_cast<uint8_t>(rto_i);
                     uint8_t fto = static_cast<uint8_t>(fto_i);
