@@ -76,9 +76,10 @@ namespace chess {
         private:
             Board chessBoard;
             Color toMove;
+            Color playerColor;
 
         public:
-            Chess(const std::string& type = "Standard", Color tm = White): chessBoard(type), toMove(tm) {}
+            Chess(const std::string& type = "Standard", Color player_color = White, Color tm = White): chessBoard(type), playerColor(player_color), toMove(tm){};
             void movePiece(const Move& m);
             void printBoard() const;
             bool isCheckmate() const;
