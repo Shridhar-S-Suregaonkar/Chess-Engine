@@ -44,7 +44,7 @@ namespace board {
         uint64_t whitePieces() const;
         uint64_t blackPieces() const;
         uint64_t allPieces() const;
-        void printBoard() const;
+        void printBoard(Color player) const;
         uint64_t flipPiece(uint64_t b) const;
         bool checkBitBoard() const;
 
