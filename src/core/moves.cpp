@@ -798,8 +798,6 @@ namespace board {
 
     std::vector<Move> Board::blackKingMoves() const {
         std::vector<Move> moves;
-        int8_t r_deltas[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-        int8_t f_deltas[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
         for (uint8_t sq = 0; sq < 64; sq++) {
             if (!(blackKing & (1ULL << sq))) continue;
             uint8_t rank = sq / 8;
