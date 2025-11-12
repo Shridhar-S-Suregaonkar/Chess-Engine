@@ -7,6 +7,10 @@
 
 namespace eval {
 
+    constexpr int8_t MAX_DEPTH = 15;
+    constexpr int8_t MAX_BREADTH = 30;
+    constexpr int8_t SELECTIVE_DEPTH = 5;
+
     class Node{
     private:
         int32_t kingSafety;
@@ -16,13 +20,16 @@ namespace eval {
         
     public:
         board::Board position;
-        Node(int32_t king, int32_t material, int32_t positional, int32_t mobility, const board::Board& pos)
-            : kingSafety(king), materialScore(material), positionalScore(positional), relativeMobility(mobility), position(pos) {}
+        board::Move previousMove;
+
+        Node(int32_t king, int32_t material, int32_t positional, int32_t mobility, const board::Board& pos, board::Move previousMove = board::Move(0,0,board::Color::White))
+            : kingSafety(king), materialScore(material), positionalScore(positional), relativeMobility(mobility), position(pos), previousMove(previousMove) {}
 
         int32_t getKingSafety() const { return kingSafety; }
         int32_t getMaterialScore() const { return materialScore; }
         int32_t getPositionalScore() const { return positionalScore; }
         int32_t getRelativeMobility() const { return relativeMobility; }
+        board::Move getPreviousMove() const { return previousMove; }
     };
 
     class SearchTree{
@@ -33,6 +40,8 @@ namespace eval {
 
         SearchTree();
         ~SearchTree();
+        Node getRoot() const { return root; }
+        Node create_node();
     };
 }
 
