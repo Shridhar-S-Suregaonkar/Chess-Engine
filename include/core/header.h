@@ -28,4 +28,11 @@ constexpr uint64_t FILE_H = 0x8080808080808080ULL;
 constexpr uint64_t WHITE_SQUARES = 0x55AA55AA55AA55AAULL;
 constexpr uint64_t BLACK_SQUARES = 0xAA55AA55AA55AA55ULL;
 
+static constexpr int PAWN_VALUE   = 100;
+static constexpr int KNIGHT_VALUE = 320;
+static constexpr int BISHOP_VALUE = 330;
+static constexpr int ROOK_VALUE   = 500;
+static constexpr int QUEEN_VALUE  = 900;
+static constexpr int KING_VALUE   = 20000;
+
 #endif // HEADER_H
