@@ -1,6 +1,6 @@
-#include "../include/eval/evaluator.h"
-#include "../include/core/header.h"
-#include "../include/core/moves.h"
+#include "../include/eval/evaluator.hpp"
+#include "../include/core/header.hpp"
+#include "../include/core/moves.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
