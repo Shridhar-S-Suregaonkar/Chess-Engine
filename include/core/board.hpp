@@ -5,8 +5,9 @@
 #include <string>
 
 
-#include "header.h"
-#include "moves.h"
+#include "header.hpp"
+#include "moves.hpp"
+#include "../eval/evaluator.hpp"
 
 namespace board {
 
@@ -29,7 +30,6 @@ namespace board {
         uint64_t blackQueen;
         uint64_t blackKing;
 
-        bool canCastle = true;
         bool _oo = true;
         bool _ooo = true;
 
@@ -65,6 +65,7 @@ namespace board {
 
         friend class chess;
         friend std::vector<Move> movesEvaluator(const Board& board, Color toMove);
+        friend class eval::evaluator;
     };
 
 }
