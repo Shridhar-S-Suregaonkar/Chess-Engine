@@ -2,9 +2,9 @@
 #include <vector>
 #include <utility>
 
-#include "board.h"
-#include "header.h"
-#include "moves.h"
+#include "board.hpp"
+#include "header.hpp"
+#include "moves.hpp"
 
 namespace board {
 
