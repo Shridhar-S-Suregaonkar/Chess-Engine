@@ -7,7 +7,6 @@
 
 #include "header.hpp"
 #include "moves.hpp"
-#include "../eval/evaluator.hpp"
 
 namespace board {
 
