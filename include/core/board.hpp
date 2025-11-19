@@ -8,8 +8,8 @@
 #include "header.hpp"
 #include "moves.hpp"
 
+namespace eval { class evaluator; }
 namespace board {
-
     class Board{
 
     private:
@@ -64,7 +64,7 @@ namespace board {
 
         friend class chess;
         friend std::vector<Move> movesEvaluator(const Board& board, Color toMove);
-        friend class eval::evaluator;
+        friend class ::eval::evaluator;
     };
 
 }
