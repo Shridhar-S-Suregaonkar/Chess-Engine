@@ -32,7 +32,7 @@ namespace board {
             PieceType piece;
 
             Move(uint8_t f, uint8_t t, Color c);
-            Move(uint8_t f, uint8_t t, MoveState s, Color c);
+            Move(uint8_t f, uint8_t t, MoveState s = MoveState::QuietMove, Color c);
             Move(const Move &m);
     };
 
