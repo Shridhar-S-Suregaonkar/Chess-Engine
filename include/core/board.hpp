@@ -70,16 +70,15 @@ namespace board {
 }
 
 namespace chess {
-    using namespace board;
     class Chess{
 
         private:
-            Board chessBoard;
-            Color toMove;
-            Color playerColor;
+            board::Board chessBoard;
+            board::Color toMove;
+            board::Color playerColor;
 
         public:
-            Chess(const std::string& type = "Standard", Color player_color = White, Color tm = White): chessBoard(type), playerColor(player_color), toMove(tm){};
+            Chess(const std::string& type = "Standard", board::Color player_color = board::Color::White, board::Color tm = board::Color::White): chessBoard(type), playerColor(player_color), toMove(tm){};
             void movePiece(const Move& m);
             void printBoard() const;
             bool isCheckmate() const;
