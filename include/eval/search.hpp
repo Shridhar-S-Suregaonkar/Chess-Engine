@@ -3,8 +3,6 @@
 #include <cstdint>
 #include "../core/board.hpp"
 #include "../core/moves.hpp"
-#include <vector>
-
 
 namespace eval {
 
