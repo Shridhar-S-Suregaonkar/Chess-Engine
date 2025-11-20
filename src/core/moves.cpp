@@ -9,7 +9,7 @@
 namespace board {
 
     Move::Move(uint8_t f, uint8_t t, Color c) : from(f), to(t), color(c) {}
-    Move::Move(uint8_t f, uint8_t t, MoveState s, Color c) : from(f), to(t), state(s), color(c) {}
+    Move::Move(uint8_t f, uint8_t t, MoveState s = MoveState::QuietMove, Color c) : from(f), to(t), state(s), color(c) {}
     Move::Move(const Move &m) : from(m.from), to(m.to), state(m.state), score(m.score), color(m.color) {}
 
     std::vector<Move> Board::whitePawnQuietMoves() const {
