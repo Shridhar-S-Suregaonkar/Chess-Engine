@@ -35,4 +35,7 @@ static constexpr int ROOK_VALUE   = 500;
 static constexpr int QUEEN_VALUE  = 900;
 static constexpr int KING_VALUE   = 20000;
 
+namespace board { enum Color: uint8_t; class Board; class Move; }
+namespace eval { class evaluator;}
+
 #endif // HEADER_H
