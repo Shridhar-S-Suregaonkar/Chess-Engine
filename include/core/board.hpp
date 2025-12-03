@@ -8,44 +8,55 @@
 #include "header.hpp"
 #include "moves.hpp"
 
-namespace eval { class evaluator; }
 namespace board {
-    class Board{
-
-    private:
+    class BitBoard{
+    protected:
         // White Pieces
-        uint64_t whitePawns;
-        uint64_t whiteKnight;
-        uint64_t whiteBishop;
-        uint64_t whiteRook;
-        uint64_t whiteQueen;
-        uint64_t whiteKing;
-
+        std::uint64_t whitePawns;
+        std::uint64_t whiteKnight;
+        std::uint64_t whiteBishop;
+        std::uint64_t whiteRook;
+        std::uint64_t whiteQueen;
+        std::uint64_t whiteKing;
+    
         // Black Pieces
-        uint64_t blackPawns;
-        uint64_t blackKnight;
-        uint64_t blackBishop;
-        uint64_t blackRook;
-        uint64_t blackQueen;
-        uint64_t blackKing;
+        std::uint64_t blackPawns;
+        std::uint64_t blackKnight;
+        std::uint64_t blackBishop;
+        std::uint64_t blackRook;
+        std::uint64_t blackQueen;
+        std::uint64_t blackKing;
 
+    public:
+        BitBoard() = default;
+        BitBoard(std::uint64_t wp, std::uint64_t wr, std::uint64_t wn, std::uint64_t wb, std::uint64_t wq, std::uint64_t wk,
+             std::uint64_t bp, std::uint64_t br, std::uint64_t bn, std::uint64_t bb, std::uint64_t bq, std::uint64_t bk)
+        : whitePawns(wp), whiteRook(wr), whiteKnight(wn), whiteBishop(wb),
+          whiteQueen(wq), whiteKing(wk),
+          blackPawns(bp), blackRook(br), blackKnight(bn), blackBishop(bb),
+          blackQueen(bq), blackKing(bk)
+    {}
+        
+        void printBoard(Color player) const;
+        std::uint64_t flipPiece(std::uint64_t b) const;
+        bool checkBitBoard() const;
+    };
+
+    class Board: public BitBoard {
+        
+    private:
+        
         bool _oo = true;
         bool _ooo = true;
 
     public:
 
-        uint64_t* const whitePiece_iter[6] = {&whitePawns, &whiteKnight, &whiteBishop, &whiteRook, &whiteQueen, &whiteKing};
-        uint64_t* const blackPiece_iter[6] = {&blackPawns, &blackKnight, &blackBishop, &blackRook, &blackQueen, &blackKing};
-
         Board(const std::string& type = "Standard");
-        Board(uint64_t wp, uint64_t wr, uint64_t wn, uint64_t wb, uint64_t wq, uint64_t wk);
+        Board(std::uint64_t wp, std::uint64_t wr, std::uint64_t wn, std::uint64_t wb, std::uint64_t wq, std::uint64_t wk);
 
-        uint64_t whitePieces() const;
-        uint64_t blackPieces() const;
-        uint64_t allPieces() const;
-        void printBoard(Color player) const;
-        uint64_t flipPiece(uint64_t b) const;
-        bool checkBitBoard() const;
+        std::uint64_t whitePieces() const;
+        std::uint64_t blackPieces() const;
+        std::uint64_t allPieces() const;
 
         std::vector<Move> whitePawnQuietMoves() const;
         std::vector<Move> whitePawnCaptures() const;
@@ -79,7 +90,7 @@ namespace chess {
 
         public:
             Chess(const std::string& type = "Standard", board::Color player_color = board::Color::White, board::Color tm = board::Color::White): chessBoard(type), playerColor(player_color), toMove(tm){};
-            void movePiece(const Move& m);
+            void movePiece(const board::Move& m);
             void printBoard() const;
             bool isCheckmate() const;
             bool isStalemate() const;
