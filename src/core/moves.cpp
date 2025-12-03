@@ -8,608 +8,597 @@
 
 namespace board {
 
-    Move::Move(uint8_t f, uint8_t t, Color c) : from(f), to(t), color(c) {}
     Move::Move(uint8_t f, uint8_t t, MoveState s = MoveState::QuietMove, Color c) : from(f), to(t), state(s), color(c) {}
     Move::Move(const Move &m) : from(m.from), to(m.to), state(m.state), score(m.score), color(m.color) {}
 
     std::vector<Move> Board::whitePawnQuietMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t single_push = (whitePawns << 8) & ~occupied;
-        uint64_t double_push = ((single_push & RANK_3) << 8) & ~occupied;
-        for (uint8_t i = 0; i < 64; i++) {
-            if (single_push & (1ULL << i)) {
-                moves.emplace_back(i - 8, i);
-            }
-            if (double_push & (1ULL << i)) {
-                moves.emplace_back(i - 16, i);
-            }
+        std::uint64_t occupied = allPieces();
+        std::uint64_t single_push = (whitePawns << 8) & ~occupied;
+        std::uint64_t double_push = ((single_push & RANK_3) << 8) & ~occupied;
+        
+        while(single_push){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(single_push));
+            moves.emplace_back(i - 8, i, MoveState::QuietMove, Color::White);
+            single_push &= single_push - 1;
         }
+            
+        while(double_push){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(double_push));
+            moves.emplace_back(i - 16, i, MoveState::QuietMove, Color::White);
+            double_push &= double_push - 1;
+        }
+        
         return moves;
     }
 
     std::vector<Move> Board::whitePawnCaptures() const {
         std::vector<Move> moves;
-        uint64_t black_occupied = blackPieces();
-        uint64_t leftCaptures = ((whitePawns & ~FILE_A) << 7) & black_occupied;
-        uint64_t rightCaptures = ((whitePawns & ~FILE_H) << 9) & black_occupied;
+        std::uint64_t black_occupied = blackPieces();
+        std::uint64_t leftCaptures = ((whitePawns & ~FILE_A) << 7) & black_occupied;
+        std::uint64_t rightCaptures = ((whitePawns & ~FILE_H) << 9) & black_occupied;
 
-        for (uint8_t i = 0; i < 64; i++) {
-            if (leftCaptures & (1ULL << i)) {
-                moves.emplace_back(i - 7, i);
-            }
-            if (rightCaptures & (1ULL << i)) {
-                moves.emplace_back(i - 9, i);
-            }
+        while(leftCaptures){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(leftCaptures));
+            moves.emplace_back(i - 7, i, MoveState::Capture, Color::White);
+            leftCaptures &= leftCaptures - 1;
+        }
+        while(rightCaptures){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(rightCaptures));
+            moves.emplace_back(i - 9, i, MoveState::Capture, Color::White);
+            rightCaptures &= rightCaptures - 1;
         }
         return moves;
     }
 
     std::vector<Move> Board::blackPawnQuietMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t single_push = (blackPawns >> 8) & ~occupied;
-        uint64_t double_push = ((single_push & RANK_6) >> 8) & ~occupied;
-        for (uint8_t i = 0; i < 64; i++) {
-            if (single_push & (1ULL << i)) {
-                moves.emplace_back(i + 8, i);
-            }
-            if (double_push & (1ULL << i)) {
-                moves.emplace_back(i + 16, i);
-            }
+        std::uint64_t occupied = allPieces();
+        std::uint64_t single_push = (blackPawns >> 8) & ~occupied;
+        std::uint64_t double_push = ((single_push & RANK_6) >> 8) & ~occupied;
+
+        while(single_push){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(single_push));
+            moves.emplace_back(i + 8, i, MoveState::QuietMove, Color::Black);
+            single_push &= single_push - 1;
+        }
+        while(double_push){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(double_push));
+            moves.emplace_back(i + 16, i, MoveState::QuietMove, Color::Black);
+            double_push &= double_push - 1;
         }
         return moves;
     }
 
     std::vector<Move> Board::blackPawnCaptures() const {
         std::vector<Move> moves;
-        uint64_t white_occupied = whitePieces();
-        uint64_t leftCaptures = ((blackPawns & ~FILE_H) >> 7) & white_occupied;
-        uint64_t rightCaptures = ((blackPawns & ~FILE_A) >> 9) & white_occupied;
-        for (uint8_t i = 0; i < 64; i++) {
-            if (leftCaptures & (1ULL << i)) {
-                moves.emplace_back(i + 7, i);
-            }
-            if (rightCaptures & (1ULL << i)) {
-                moves.emplace_back(i + 9, i);
-            }
+        std::uint64_t white_occupied = whitePieces();
+        std::uint64_t leftCaptures = ((blackPawns & ~FILE_H) >> 7) & white_occupied;
+        std::uint64_t rightCaptures = ((blackPawns & ~FILE_A) >> 9) & white_occupied;
+
+        while(leftCaptures){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(leftCaptures));
+            moves.emplace_back(i + 7, i, MoveState::Capture, Color::Black);
+            leftCaptures &= leftCaptures - 1;
+        }
+
+        while(rightCaptures){
+            int8_t i = static_cast<int8_t>(__builtin_ctzll(rightCaptures));
+            moves.emplace_back(i + 9, i, MoveState::Capture, Color::Black);
+            rightCaptures &= rightCaptures - 1;
         }
         return moves;
     }
 
     std::vector<Move> Board::whiteKnightMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(whiteKnight & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
-            for (uint8_t d = 0; d < 8; d++) {
-                int8_t fto_i = static_cast<int8_t>(file) + knightMoves[d].first;
-                int8_t rto_i = static_cast<int8_t>(rank) + knightMoves[d].second;
+        std::uint64_t occupied = whitePieces();
+        uint64_t opponent = blackPieces();
+        uint64_t knights = whiteKnight;
+        while(knights) {
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(knights));
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            for (int8_t d = 0; d < 8; d++) {
+                int8_t fto_i = file + knightMoves[d].first;
+                int8_t rto_i = rank + knightMoves[d].second;
                 if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
-                    uint8_t rto = static_cast<uint8_t>(rto_i);
-                    uint8_t fto = static_cast<uint8_t>(fto_i);
-                    uint8_t to = rto * 8 + fto;
-                    if (!(whitePieces() & (1ULL << to))) {
-                        moves.emplace_back(sq, to);
+                    int8_t to = rto_i * 8 + fto_i;
+                    if (opponent & (1ULL << to)) {
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
+                    } else
+                    if (!(occupied & (1ULL << to))) {
+                        moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                     }
                 }
             }
+            knights &= ~ (1ULL << sq);
         }
         return moves;
     }
 
     std::vector<Move> Board::blackKnightMoves() const {
         std::vector<Move> moves;
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(blackKnight & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
-            for (uint8_t d = 7; d >= 0; d--) {
-                int8_t fto_i = static_cast<int8_t>(file) + knightMoves[d].first;
-                int8_t rto_i = static_cast<int8_t>(rank) + knightMoves[d].second;
+        std::uint64_t occupied = blackPieces();
+        uint64_t opponent = whitePieces();
+        uint64_t knights = blackKnight;
+        while(knights) {
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(knights));
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            for (int8_t d = 7; d >= 0; d--) {
+                int8_t fto_i = file + knightMoves[d].first;
+                int8_t rto_i = rank + knightMoves[d].second;
                 if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
-                    uint8_t rto = static_cast<uint8_t>(rto_i);
-                    uint8_t fto = static_cast<uint8_t>(fto_i);
-                    uint8_t to = rto * 8 + fto;
-                    if (!(blackPieces() & (1ULL << to))) {
-                        moves.emplace_back(sq, to);
+                    int8_t to = rto_i * 8 + fto_i;
+                    if (opponent & (1ULL << to)) {
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
+                    } else
+                    if (!(occupied & (1ULL << to))) {
+                        moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                     }
                 }
             }
+            knights &= ~ (1ULL << sq);
         }
         return moves;
     }
 
     std::vector<Move> Board::whiteBishopMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t opponent = blackPieces();
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(whiteBishop & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
+        std::uint64_t occupied = allPieces();
+        std::uint64_t opponent = blackPieces();
+        uint64_t bishops = whiteBishop;
+        while (bishops) {
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(bishops));
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            int8_t dist;
+            int8_t rto_i, fto_i;
             // Up-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file - dist;
                 if (rto_i >= 8 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Up-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file + dist;
                 if (rto_i >= 8 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Down-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file - dist;
                 if (rto_i < 0 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Down-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file + dist;
                 if (rto_i < 0 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
+            bishops &= ~ (1ULL << sq);
         }
         return moves;
     }
 
     std::vector<Move> Board::blackBishopMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t opponent = whitePieces();
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(blackBishop & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
+        std::uint64_t occupied = allPieces();
+        std::uint64_t opponent = whitePieces();
+        uint64_t bishops = blackBishop;
+        while(bishops){
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(bishops));
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            int8_t dist;
+            int8_t rto_i, fto_i;
             // Up-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file - dist;
                 if (rto_i >= 8 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Up-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file + dist;
                 if (rto_i >= 8 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Down-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file - dist;
                 if (rto_i < 0 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Down-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file + dist;
                 if (rto_i < 0 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
+            bishops &= ~ (1ULL << sq);
         }
         return moves;
     }
 
     std::vector<Move> Board::whiteRookMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t opponent = blackPieces();
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(whiteRook & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
+        std::uint64_t occupied = allPieces();
+        std::uint64_t opponent = blackPieces();
+        uint64_t rooks = whiteRook;
+        while (rooks) {
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(rooks));
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            int8_t dist;
+            int8_t rto_i, fto_i;
             // Up
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                int8_t rto_i = rank + dist;
                 if (rto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + file;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Down
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
                 if (rto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + file;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                fto_i = file + dist;
                 if (fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rank * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                fto_i = file - dist;
                 if (fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rank * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
+            rooks &= ~ (1ULL << sq);
         }
         return moves;
     }
 
     std::vector<Move> Board::blackRookMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t opponent = whitePieces();
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(blackRook & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
+        std::uint64_t occupied = allPieces();
+        std::uint64_t opponent = whitePieces();
+        uint64_t rooks = blackRook;
+        while (rooks) {
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(rooks));
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            int8_t dist;
+            int8_t rto_i, fto_i;
             // Up
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
                 if (rto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + file;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Down
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file;
                 if (rto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank;
+                fto_i = file + dist;
                 if (fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank;
+                fto_i = file - dist;
                 if (fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
+            rooks &= ~ (1ULL << sq);
         }
         return moves;
     }
 
     std::vector<Move> Board::whiteQueenMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t opponent = blackPieces();
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(whiteQueen & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
-            // Rook directions
+        std::uint64_t occupied = allPieces();
+        std::uint64_t opponent = blackPieces();
+        uint64_t queens = whiteQueen;
+
+        while (queens) {
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(queens));
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            int8_t rto_i, fto_i;
+            int8_t dist;
+
             // Up
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file;
                 if (rto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Down
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file;
                 if (rto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank;
+                fto_i = file + dist;
                 if (fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank;
+                fto_i = file - dist;
                 if (fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Bishop directions
             // Up-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file - dist;
                 if (rto_i >= 8 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Up-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file + dist;
                 if (rto_i >= 8 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Down-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file - dist;
                 if (rto_i < 0 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
             // Down-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file + dist;
                 if (rto_i < 0 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::White);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::White);
                 }
             }
         }
@@ -618,156 +607,145 @@ namespace board {
 
     std::vector<Move> Board::blackQueenMoves() const {
         std::vector<Move> moves;
-        uint64_t occupied = allPieces();
-        uint64_t opponent = whitePieces();
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(blackQueen & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
+        std::uint64_t occupied = allPieces();
+        std::uint64_t opponent = whitePieces();
+        uint64_t queens = blackQueen;
+
+        while (queens) {
+            int8_t sq = static_cast<int8_t>(__builtin_ctzll(queens));
+            queens &= queens - 1;
+            int8_t rank = sq / 8;
+            int8_t file = sq % 8;
+            int8_t rto_i, fto_i;
+            int8_t dist;
             // Rook directions
             // Up
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file;
                 if (rto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Down
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file;
                 if (rto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank;
+                fto_i = file + dist;
                 if (fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank;
+                fto_i = file - dist;
                 if (fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Bishop directions
             // Up-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file - dist;
                 if (rto_i >= 8 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Up-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank + dist;
+                fto_i = file + dist;
                 if (rto_i >= 8 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Down-left
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) - static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file - dist;
                 if (rto_i < 0 || fto_i < 0) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
             // Down-right
-            for (uint8_t dist = 1; ; dist++) {
-                int8_t rto_i = static_cast<int8_t>(rank) - static_cast<int8_t>(dist);
-                int8_t fto_i = static_cast<int8_t>(file) + static_cast<int8_t>(dist);
+            for (dist = 1; ; dist++) {
+                rto_i = rank - dist;
+                fto_i = file + dist;
                 if (rto_i < 0 || fto_i >= 8) break;
-                uint8_t rto = static_cast<uint8_t>(rto_i);
-                uint8_t fto = static_cast<uint8_t>(fto_i);
-                uint8_t to = rto * 8 + fto;
-                uint64_t tpos = 1ULL << to;
+                int8_t to = rto_i * 8 + fto_i;
+                std::uint64_t tpos = 1ULL << to;
                 if (occupied & tpos) {
                     if (opponent & tpos) {
-                        moves.emplace_back(sq, to);
+                        moves.emplace_back(sq, to, MoveState::Capture, Color::Black);
                     }
                     break;
                 } else {
-                    moves.emplace_back(sq, to);
+                    moves.emplace_back(sq, to, MoveState::QuietMove, Color::Black);
                 }
             }
         }
@@ -776,20 +754,18 @@ namespace board {
 
     std::vector<Move> Board::whiteKingMoves() const {
         std::vector<Move> moves;
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(whiteKing & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
-            for (uint8_t d = 0; d < 8; d++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + kingMoves[d].first;
-                int8_t fto_i = static_cast<int8_t>(file) + kingMoves[d].second;
-                if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
-                    uint8_t rto = static_cast<uint8_t>(rto_i);
-                    uint8_t fto = static_cast<uint8_t>(fto_i);
-                    uint8_t to = rto * 8 + fto;
-                    if (!(whitePieces() & (1ULL << to))) {
-                        moves.emplace_back(sq, to);
-                    }
+        int8_t sq = static_cast<int8_t>(__builtin_ctzll(whiteKing));
+
+        int8_t rank = sq / 8;
+        int8_t file = sq % 8;
+        int8_t rto_i, fto_i;
+        for (int8_t d = 0; d < 8; d++) {
+            rto_i = rank + kingMoves[d].first;
+            fto_i = file + kingMoves[d].second;
+            if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
+                int8_t to = rto_i * 8 + fto_i;
+                if (!(whitePieces() & (1ULL << to))) {
+                    moves.emplace_back(sq, to);
                 }
             }
         }
@@ -798,20 +774,18 @@ namespace board {
 
     std::vector<Move> Board::blackKingMoves() const {
         std::vector<Move> moves;
-        for (uint8_t sq = 0; sq < 64; sq++) {
-            if (!(blackKing & (1ULL << sq))) continue;
-            uint8_t rank = sq / 8;
-            uint8_t file = sq % 8;
-            for (uint8_t d = 0; d < 8; d++) {
-                int8_t rto_i = static_cast<int8_t>(rank) + kingMoves[d].first;
-                int8_t fto_i = static_cast<int8_t>(file) + kingMoves[d].second;
-                if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
-                    uint8_t rto = static_cast<uint8_t>(rto_i);
-                    uint8_t fto = static_cast<uint8_t>(fto_i);
-                    uint8_t to = rto * 8 + fto;
-                    if (!(blackPieces() & (1ULL << to))) {
-                        moves.emplace_back(sq, to);
-                    }
+
+        int8_t sq = static_cast<int8_t>(__builtin_ctzll(blackKing));
+        int8_t rank = sq / 8;
+        int8_t rto_i, fto_i;
+        int8_t file = sq % 8;
+        for (int8_t d = 0; d < 8; d++) {
+            rto_i = rank + kingMoves[d].first;
+            fto_i = file + kingMoves[d].second;
+            if (rto_i >= 0 && rto_i < 8 && fto_i >= 0 && fto_i < 8) {
+                int8_t to = rto_i * 8 + fto_i;
+                if (!(blackPieces() & (1ULL << to))) {
+                    moves.emplace_back(sq, to);
                 }
             }
         }
