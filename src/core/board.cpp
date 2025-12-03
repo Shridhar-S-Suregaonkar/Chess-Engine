@@ -1,12 +1,15 @@
+#include <cstdint>
+#include <iostream>
+
 #include "board.hpp"
 #include "header.hpp"
 #include "moves.hpp"
 
-#include "moves.cpp"
+// #include "moves.cpp"
 
 namespace board {
 
-    Board::Board(const std::string& type = "Standard") {
+    Board::Board(const std::string& type) {
         if(type == "Standard"){
             whitePawns  = 0x000000000000FF00ULL;
             whiteRook   = 0x0000000000000081ULL;
@@ -28,27 +31,36 @@ namespace board {
 
     }
 
-    Board::Board(uint64_t wp, uint64_t wr, uint64_t wn, uint64_t wb, uint64_t wq, uint64_t wk) :
-        whitePawns(wp), whiteRook(wr), whiteKnight(wn), whiteBishop(wb), whiteQueen(wq), whiteKing(wk),
-        blackPawns(flipPiece(wp)), blackRook(flipPiece(wr)), blackKnight(flipPiece(wn)), blackBishop(flipPiece(wb)), blackQueen(flipPiece(wq)), blackKing(flipPiece(wk)) {}
+    Board::BitBoard::BitBoard(std::uint64_t wp, std::uint64_t wr, std::uint64_t wn, std::uint64_t wb, std::uint64_t wq, std::uint64_t wk,
+         std::uint64_t bp, std::uint64_t br, std::uint64_t bn, std::uint64_t bb, std::uint64_t bq, std::uint64_t bk)
+        : whitePawns(wp), whiteRook(wr), whiteKnight(wn), whiteBishop(wb),
+          whiteQueen(wq), whiteKing(wk),
+          blackPawns(bp), blackRook(br), blackKnight(bn), blackBishop(bb),
+          blackQueen(bq), blackKing(bk) {}
 
-    uint64_t Board::whitePieces() const {
+    Board::Board(std::uint64_t wp, std::uint64_t wr, std::uint64_t wn, std::uint64_t wb, std::uint64_t wq, std::uint64_t wk)
+        : BitBoard(wp, wr, wn, wb, wq, wk,
+        flipPiece(wp), flipPiece(wr), flipPiece(wn),
+        flipPiece(wb), flipPiece(wq), flipPiece(wk)) {}
+
+
+    std::uint64_t Board::whitePieces() const {
         return whitePawns | whiteKnight | whiteBishop | whiteRook | whiteQueen | whiteKing;
     }
 
-    uint64_t Board::blackPieces() const {
+    std::uint64_t Board::blackPieces() const {
         return blackPawns | blackKnight | blackBishop | blackRook | blackQueen | blackKing;
     }
 
-    uint64_t Board::allPieces() const {
+    std::uint64_t Board::allPieces() const {
         return whitePieces() | blackPieces();
     }
 
-    void Board::printBoard(Color player) const {
-        uint64_t pos;
+    void Board::BitBoard::printBoard(Color player) const {
+        std::uint64_t pos;
         int p;
         char piece;
-        auto getPiece = [&](uint64_t pos) ->char {
+        auto getPiece = [&](std::uint64_t pos) ->char {
                 if      (whitePawns & pos)  return 'P';
                 else if (whiteRook & pos)   return 'R';
                 else if (whiteKnight & pos) return 'N';
@@ -97,24 +109,13 @@ namespace board {
 
     }
 
-    uint64_t Board::flipPiece(uint64_t b) const {
+    std::uint64_t BitBoard::flipPiece(std::uint64_t b) const {
         b = ((b >> 8) & 0x00FF00FF00FF00FFULL) | ((b & 0x00FF00FF00FF00FFULL) << 8);
         b = ((b >> 16) & 0x0000FFFF0000FFFFULL) | ((b & 0x0000FFFF0000FFFFULL) << 16);
         b = (b >> 32) | (b << 32);
         return b;
     }
 
-    bool Board::checkBitBoard() const
-    {
-        for(int i = 0; i < 5; i++){
-            for(int j = i + 1; j < 6; j++){
-                if((*whitePiece_iter[i] & *whitePiece_iter[j]) != 0) return false;
-                if((*blackPiece_iter[i] & *blackPiece_iter[j]) != 0) return false;
-            }
-        }
-        if((whitePieces() & blackPieces()) != 0) return false;
-        return true;
-    }
 }
 
 
